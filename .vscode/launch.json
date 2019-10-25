@@ -1,0 +1,264 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Readprobe",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.healthprobe.Readprobe",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch) - Current File",
+            "request": "launch",
+            "mainClass": "${file}",
+            "args": "-t examples.readwrite --scan-batch-size 10 -c /opt/muchos/install/accumulo-2.0.0/conf/accumulo-client.properties"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BulkIngest<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.BulkIngest",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ContinuousBatchWalker<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.ContinuousBatchWalker",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ContinuousIngest<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.ContinuousIngest",
+            "projectName": "accumulo-testing",
+            "args": "/home/centos/accumulo-testing/conf/accumulo-testing.properties /opt/muchos/install/accumulo-2.0.0/conf/accumulo-client.properties"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ContinuousMoru<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.ContinuousMoru",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ContinuousScanner<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.ContinuousScanner",
+            "projectName": "accumulo-testing",
+            "args": "/home/centos/accumulo-testing/conf/accumulo-testing.properties /opt/muchos/install/accumulo-2.0.0/conf/accumulo-client.properties"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ContinuousVerify<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.ContinuousVerify",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ContinuousWalk<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.ContinuousWalk",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CreateTable<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.CreateTable",
+            "projectName": "accumulo-testing",
+            "args": "/home/centos/accumulo-testing/conf/accumulo-testing.properties /opt/muchos/install/accumulo-2.0.0/conf/accumulo-client.properties"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TimeBinner<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.TimeBinner",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-UndefinedAnalyzer<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.continuous.UndefinedAnalyzer",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Collector<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.gcs.Collector",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Generator<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.gcs.Generator",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Setup<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.gcs.Setup",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Verifier<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.gcs.Verifier",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-BulkImportDirectory<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.ingest.BulkImportDirectory",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TestIngest<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.ingest.TestIngest",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-VerifyIngest<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.ingest.VerifyIngest",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RowHash<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.mapreduce.RowHash",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-TeraSortIngest<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.mapreduce.TeraSortIngest",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-CompareTables<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.merkle.cli.CompareTables",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ComputeRootHash<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.merkle.cli.ComputeRootHash",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-GenerateHashes<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.merkle.cli.GenerateHashes",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ManualComparison<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.merkle.cli.ManualComparison",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-RandomWorkload<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.merkle.ingest.RandomWorkload",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Compare<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.performance.impl.Compare",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Csv<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.performance.impl.Csv",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-ListTests<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.performance.impl.ListTests",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-MergeSiteConfig<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.performance.impl.MergeSiteConfig",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-PerfTestRunner<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.performance.impl.PerfTestRunner",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Framework<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.randomwalk.Framework",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Verify<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.randomwalk.bulk.Verify",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Run<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.scalability.Run",
+            "projectName": "accumulo-testing"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Scan<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.stress.Scan",
+            "projectName": "accumulo-testing",
+            "args": "-t examples.readwrite -c /opt/muchos/install/accumulo-2.0.0/conf/accumulo-client.properties"
+        },
+        {
+            "type": "java",
+            "name": "Debug (Launch)-Write<accumulo-testing>",
+            "request": "launch",
+            "mainClass": "org.apache.accumulo.testing.stress.Write",
+            "projectName": "accumulo-testing"
+        }
+    ]
+}
