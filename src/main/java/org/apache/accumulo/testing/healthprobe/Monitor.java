@@ -1,65 +1,3 @@
-// /*
-// * Licensed to the Apache Software Foundation (ASF) under one or more
-// * contributor license agreements. See the NOTICE file distributed with
-// * this work for additional information regarding copyright ownership.
-// * The ASF licenses this file to You under the Apache License, Version 2.0
-// * (the "License"); you may not use this file except in compliance with
-// * the License. You may obtain a copy of the License at
-// *
-// * http://www.apache.org/licenses/LICENSE-2.0
-// *
-// * Unless required by applicable law or agreed to in writing, software
-// * distributed under the License is distributed on an "AS IS" BASIS,
-// * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// * See the License for the specific language governing permissions and
-// * limitations under the License.
-// */
-// package org.apache.accumulo.testing.healthprobe;
-
-// import java.util.Map.Entry;
-
-// import org.apache.accumulo.core.client.Accumulo;
-// import org.apache.accumulo.core.client.AccumuloClient;
-// import org.apache.accumulo.core.client.Scanner;
-// import org.apache.accumulo.core.client.TableNotFoundException;
-// import org.apache.accumulo.core.data.Key;
-// import org.apache.accumulo.core.data.Value;
-// import org.apache.accumulo.core.security.Authorizations;
-// import org.apache.accumulo.testing.cli.ClientOpts;
-// import org.slf4j.Logger;
-// import org.slf4j.LoggerFactory;
-
-// /**
-// * Reads all data between two rows
-// */
-// public class Read {
-
-// private static final Logger log = LoggerFactory.getLogger(Read.class);
-
-// public static void main(String[] args) throws TableNotFoundException {
-// ClientOpts opts = new ClientOpts();
-// opts.parseArgs(Read.class.getName(), args);
-
-// try (AccumuloClient client =
-// Accumulo.newClient().from(opts.getClientPropsPath()).build();
-// Scanner scan = client.createScanner("hellotable", Authorizations.EMPTY))
-
-// {
-// long startTime = System.nanoTime();
-// // scan.setRange(new Range(new Key("row_0"), new Key("row_1002")));
-// for (Entry<Key, Value> e : scan) {
-// Key key = e.getKey();
-// startTime = System.nanoTime();
-// log.info(key.getRow() + " " + key.getColumnFamily() + " " +
-// key.getColumnQualifier() + " "
-// + e.getValue());
-// long stopTime = System.nanoTime();
-// System.out.println(stopTime - startTime);
-// }
-// }
-// }
-// }
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -100,23 +38,24 @@ import org.apache.accumulo.core.security.Authorizations;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.common.collect.Lists;
 
-public class Readprobe {
+public class Monitor {
 
-  private static final Logger log = LoggerFactory.getLogger(Readprobe.class);
+  private static final Logger log = LoggerFactory.getLogger(Monitor.class);
 
   public static void main(String[] args) throws Exception {
-    ScanOpts opts = new ScanOpts();
-    opts.parseArgs(Readprobe.class.getName(), args);
+    MonitorOpts opts = new MonitorOpts();
+    opts.parseArgs(Monitor.class.getName(), args);
 
     try (AccumuloClient client = Accumulo.newClient().from(opts.getClientProps()).build();
         Scanner scanner = client.createScanner(opts.tableName, new Authorizations())) {
       if (opts.isolate) {
         scanner.enableIsolation();
       }
-      int scannerSleepMs = 60000;
+      int scannerSleepMs = opts.sleep_ms;
       LoopControl scanning_condition = opts.continuous ? new ContinuousLoopControl()
           : new IterativeLoopControl(opts.scan_iterations);
 
@@ -131,10 +70,11 @@ public class Readprobe {
           long startTime = System.nanoTime();
           int count = consume(scanner);
           long stopTime = System.nanoTime();
-          // System.out.println(stopTime - startTime);
-          log.debug("SCN {} {} {} {}", startTime, tablet_index_generator, (stopTime - startTime),
-              count);
-
+          MDC.put("StartTime", String.valueOf(startTime));
+          MDC.put("TabletIndex", String.valueOf(tablet_index_generator));
+          MDC.put("TotalTime", String.valueOf((stopTime - startTime)));
+          MDC.put("TotalRecords", String.valueOf(count));
+          log.debug("SCN starttime={} index={} readtime={} count={}", startTime, tablet_index_generator, (stopTime - startTime), count);
           if (scannerSleepMs > 0) {
             sleepUninterruptibly(scannerSleepMs, TimeUnit.MILLISECONDS);
           }
@@ -153,8 +93,8 @@ public class Readprobe {
     while (itr.hasNext()) {
       Entry<Key,Value> e = itr.next();
       Key key = e.getKey();
-      // System.out.println(key.getRow() + " " + key.getColumnFamily() + " " +
-      // key.getColumnQualifier() + " " + e.getValue());
+      System.out.println(key.getRow() + " " + key.getColumnFamily() + " " +
+      key.getColumnQualifier() + " " + e.getValue());
       itr.next();
       count++;
     }
@@ -198,7 +138,7 @@ public class Readprobe {
         ++current;
         return true;
       } else {
-        return true;
+        return false;
       }
     }
   }

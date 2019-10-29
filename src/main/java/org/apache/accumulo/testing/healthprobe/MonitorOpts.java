@@ -20,7 +20,7 @@ import org.apache.accumulo.testing.cli.ClientOpts;
 
 import com.beust.jcommander.Parameter;
 
-class ScanOpts extends ClientOpts {
+class MonitorOpts extends ClientOpts {
   @Parameter(names = {"-t", "--table"}, description = "table to use")
   String tableName = "";
 
@@ -33,11 +33,14 @@ class ScanOpts extends ClientOpts {
 
   @Parameter(names = "--continuous",
       description = "continuously scan the table. note that this overrides --num-iterations")
-  boolean continuous;
+  boolean continuous = true;
 
   @Parameter(names = "--scan-seed", description = "seed for randomly choosing tablets to scan")
   int scan_seed = 1337;
 
   @Parameter(names = "--scan-batch-size", description = "scanner batch size")
-  int batch_size = -1;
+  int batch_size = 5;
+
+  @Parameter(names = "--scanner-sleep-ms", description = "scanner sleep interval in ms")
+  int sleep_ms = 60000;
 }
