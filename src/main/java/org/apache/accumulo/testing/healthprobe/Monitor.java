@@ -35,6 +35,7 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
+import org.apache.accumulo.core.util.FastFormat;
 import org.apache.hadoop.io.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +46,14 @@ import com.google.common.collect.Lists;
 public class Monitor {
 
   private static final Logger log = LoggerFactory.getLogger(Monitor.class);
+  private static final byte[] EMPTY_BYTES = new byte[0];
+  Random r = new Random();
+  static long distance = 100l;
 
   public static void main(String[] args) throws Exception {
     MonitorOpts opts = new MonitorOpts();
     opts.parseArgs(Monitor.class.getName(), args);
+    distance= opts.distance;
 
     try (AccumuloClient client = Accumulo.newClient().from(opts.getClientProps()).build();
         Scanner scanner = client.createScanner(opts.tableName, new Authorizations())) {
@@ -74,13 +79,14 @@ public class Monitor {
           MDC.put("TabletIndex", String.valueOf(tablet_index_generator));
           MDC.put("TotalTime", String.valueOf((stopTime - startTime)));
           MDC.put("TotalRecords", String.valueOf(count));
-          log.debug("SCN starttime={} index={} readtime={} count={}", startTime, tablet_index_generator, (stopTime - startTime), count);
+          log.debug("SCN starttime={} index={} readtime={} count={}", startTime, tablet_index_generator,
+              (stopTime - startTime), count);
           if (scannerSleepMs > 0) {
             sleepUninterruptibly(scannerSleepMs, TimeUnit.MILLISECONDS);
           }
         } catch (Exception e) {
-          System.err.println(String.format(
-              "Exception while scanning range %s. Check the state of Accumulo for errors.", range));
+          System.err.println(
+              String.format("Exception while scanning range %s. Check the state of Accumulo for errors.", range));
           throw e;
         }
       }
@@ -93,24 +99,41 @@ public class Monitor {
     while (itr.hasNext()) {
       Entry<Key,Value> e = itr.next();
       Key key = e.getKey();
-      System.out.println(key.getRow() + " " + key.getColumnFamily() + " " +
-      key.getColumnQualifier() + " " + e.getValue());
+      System.out.println(key.getRow() + " " + key.getColumnFamily() + " " + key.getColumnQualifier() + " " + e.getValue());
       itr.next();
       count++;
     }
     return count;
   }
 
+  public static long genLong(long min, long max, Random r) {
+    return ((r.nextLong() & 0x7fffffffffffffffL) % (max - min)) + min;
+  }
+
+  static byte[] genRow(long min, long max, Random r) {
+    return genRow(genLong(min, max, r));
+  }
+
+  public static byte[] genRow(long rowLong) {
+    return FastFormat.toZeroPaddedString(rowLong, 16, 16, EMPTY_BYTES);
+  }
+
   public static Range pickRange(TableOperations tops, String table, Random r)
       throws TableNotFoundException, AccumuloSecurityException, AccumuloException {
+
     ArrayList<Text> splits = Lists.newArrayList(tops.listSplits(table));
     if (splits.isEmpty()) {
       return new Range();
     } else {
       int index = r.nextInt(splits.size());
-      Text endRow = splits.get(index);
-      Text startRow = index == 0 ? null : splits.get(index - 1);
-      return new Range(startRow, false, endRow, true);
+      Text maxRow = splits.get(index);
+      Text minRow = index == 0 ? new Text(genRow(0)) : splits.get(index - 1);
+
+      long startRow = genLong(Long.parseLong(minRow.toString().trim(), 16 ), Long.parseLong(maxRow.toString().trim(), 16 ) - distance, r);
+      byte[] scanStart = genRow(startRow);
+      byte[] scanStop = genRow(startRow + distance);
+
+      return new Range(new Text(scanStart), new Text(scanStop));
     }
   }
 
