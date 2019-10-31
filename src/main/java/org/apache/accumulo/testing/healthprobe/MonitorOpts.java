@@ -44,6 +44,7 @@ class MonitorOpts extends ClientOpts {
   @Parameter(names = "--scanner-sleep-ms", description = "scanner sleep interval in ms")
   int sleep_ms = 60000;
 
-  @Parameter(names = "--num-of-rows-per-iteration", description = "Number of rows scanned together in one iteration of scanner consumption")
-  long distance = 100l;
+  @Parameter(names = "--num-of-rows-per-iteration",
+      description = "Number of rows scanned together in one iteration of scanner consumption")
+  long distance = 10l;
 }

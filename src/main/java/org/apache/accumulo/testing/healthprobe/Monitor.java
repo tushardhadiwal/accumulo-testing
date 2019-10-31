@@ -53,7 +53,7 @@ public class Monitor {
   public static void main(String[] args) throws Exception {
     MonitorOpts opts = new MonitorOpts();
     opts.parseArgs(Monitor.class.getName(), args);
-    distance= opts.distance;
+    distance = opts.distance;
 
     try (AccumuloClient client = Accumulo.newClient().from(opts.getClientProps()).build();
         Scanner scanner = client.createScanner(opts.tableName, new Authorizations())) {
@@ -77,16 +77,18 @@ public class Monitor {
           long stopTime = System.nanoTime();
           MDC.put("StartTime", String.valueOf(startTime));
           MDC.put("TabletIndex", String.valueOf(tablet_index_generator));
+          MDC.put("TableName", String.valueOf(opts.tableName));
           MDC.put("TotalTime", String.valueOf((stopTime - startTime)));
           MDC.put("TotalRecords", String.valueOf(count));
-          log.debug("SCN starttime={} index={} readtime={} count={}", startTime, tablet_index_generator,
-              (stopTime - startTime), count);
+
+          log.debug("SCN starttime={} index={} tablename={} readtime={} count={}", startTime,
+              tablet_index_generator, opts.tableName, (stopTime - startTime), count);
           if (scannerSleepMs > 0) {
             sleepUninterruptibly(scannerSleepMs, TimeUnit.MILLISECONDS);
           }
         } catch (Exception e) {
-          System.err.println(
-              String.format("Exception while scanning range %s. Check the state of Accumulo for errors.", range));
+          System.err.println(String.format(
+              "Exception while scanning range %s. Check the state of Accumulo for errors.", range));
           throw e;
         }
       }
@@ -99,7 +101,8 @@ public class Monitor {
     while (itr.hasNext()) {
       Entry<Key,Value> e = itr.next();
       Key key = e.getKey();
-      System.out.println(key.getRow() + " " + key.getColumnFamily() + " " + key.getColumnQualifier() + " " + e.getValue());
+      System.out.println(key.getRow() + " " + key.getColumnFamily() + " " + key.getColumnQualifier()
+          + " " + e.getValue());
       itr.next();
       count++;
     }
@@ -129,7 +132,8 @@ public class Monitor {
       Text maxRow = splits.get(index);
       Text minRow = index == 0 ? new Text(genRow(0)) : splits.get(index - 1);
 
-      long startRow = genLong(Long.parseLong(minRow.toString().trim(), 16 ), Long.parseLong(maxRow.toString().trim(), 16 ) - distance, r);
+      long startRow = genLong(Long.parseLong(minRow.toString().trim(), 16),
+          Long.parseLong(maxRow.toString().trim(), 16) - distance, r);
       byte[] scanStart = genRow(startRow);
       byte[] scanStop = genRow(startRow + distance);
 
