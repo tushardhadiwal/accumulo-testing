@@ -33,7 +33,7 @@ class MonitorOpts extends ClientOpts {
 
   @Parameter(names = "--continuous",
       description = "continuously scan the table. note that this overrides --num-iterations")
-  boolean continuous = true;
+  boolean continuous = false;
 
   @Parameter(names = "--scan-seed", description = "seed for randomly choosing tablets to scan")
   int scan_seed = 1337;

@@ -67,6 +67,7 @@ public class Monitor {
       while (scanning_condition.keepScanning()) {
         Random tablet_index_generator = new Random(opts.scan_seed);
         Range range = pickRange(client.tableOperations(), opts.tableName, tablet_index_generator);
+
         scanner.setRange(range);
         if (opts.batch_size > 0) {
           scanner.setBatchSize(opts.batch_size);
@@ -79,6 +80,8 @@ public class Monitor {
           MDC.put("TabletIndex", String.valueOf(tablet_index_generator));
           MDC.put("TableName", String.valueOf(opts.tableName));
           MDC.put("TotalTime", String.valueOf((stopTime - startTime)));
+          MDC.put("StartRow", String.valueOf(range.getStartKey()));
+          MDC.put("EndRow", String.valueOf(range.getEndKey()));
           MDC.put("TotalRecords", String.valueOf(count));
 
           log.debug("SCN starttime={} index={} tablename={} readtime={} count={}", startTime,
@@ -87,9 +90,9 @@ public class Monitor {
             sleepUninterruptibly(scannerSleepMs, TimeUnit.MILLISECONDS);
           }
         } catch (Exception e) {
-          System.err.println(String.format(
-              "Exception while scanning range %s. Check the state of Accumulo for errors.", range));
-          throw e;
+          log.error(String.format(
+              "Exception while scanning range %s. Check the state of Accumulo for errors.", range),
+              e);
         }
       }
     }
@@ -101,8 +104,8 @@ public class Monitor {
     while (itr.hasNext()) {
       Entry<Key,Value> e = itr.next();
       Key key = e.getKey();
-      System.out.println(key.getRow() + " " + key.getColumnFamily() + " " + key.getColumnQualifier()
-          + " " + e.getValue());
+      String readRow = key.getRow() + " " + key.getColumnFamily() + " " + key.getColumnQualifier()
+          + " " + e.getValue();
       itr.next();
       count++;
     }
