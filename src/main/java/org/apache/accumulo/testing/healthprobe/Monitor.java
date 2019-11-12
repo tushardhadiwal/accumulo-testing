@@ -54,9 +54,10 @@ public class Monitor {
     MonitorOpts opts = new MonitorOpts();
     opts.parseArgs(Monitor.class.getName(), args);
     distance = opts.distance;
+    Authorizations auth = new Authorizations(opts.auth);
 
     try (AccumuloClient client = Accumulo.newClient().from(opts.getClientProps()).build();
-        Scanner scanner = client.createScanner(opts.tableName, new Authorizations())) {
+        Scanner scanner = client.createScanner(opts.tableName, auth )) {
       if (opts.isolate) {
         scanner.enableIsolation();
       }
@@ -65,9 +66,8 @@ public class Monitor {
           : new IterativeLoopControl(opts.scan_iterations);
 
       while (scanning_condition.keepScanning()) {
-        Random tablet_index_generator = new Random(opts.scan_seed);
+        Random tablet_index_generator = new Random();
         Range range = pickRange(client.tableOperations(), opts.tableName, tablet_index_generator);
-
         scanner.setRange(range);
         if (opts.batch_size > 0) {
           scanner.setBatchSize(opts.batch_size);
@@ -84,15 +84,14 @@ public class Monitor {
           MDC.put("EndRow", String.valueOf(range.getEndKey()));
           MDC.put("TotalRecords", String.valueOf(count));
 
-          log.debug("SCN starttime={} index={} tablename={} readtime={} count={}", startTime,
+          log.debug("SCN starttime={} tabletindex={} tablename={} totaltime={} totalrecords={}", startTime,
               tablet_index_generator, opts.tableName, (stopTime - startTime), count);
           if (scannerSleepMs > 0) {
             sleepUninterruptibly(scannerSleepMs, TimeUnit.MILLISECONDS);
           }
         } catch (Exception e) {
           log.error(String.format(
-              "Exception while scanning range %s. Check the state of Accumulo for errors.", range),
-              e);
+              "Exception while scanning range %s. Check the state of Accumulo for errors.", range), e);
         }
       }
     }
@@ -104,9 +103,7 @@ public class Monitor {
     while (itr.hasNext()) {
       Entry<Key,Value> e = itr.next();
       Key key = e.getKey();
-      String readRow = key.getRow() + " " + key.getColumnFamily() + " " + key.getColumnQualifier()
-          + " " + e.getValue();
-      itr.next();
+      String readRow= key.getRow() + " " + key.getColumnFamily() + " " + key.getColumnQualifier() + " " + e.getValue();
       count++;
     }
     return count;
@@ -124,6 +121,26 @@ public class Monitor {
     return FastFormat.toZeroPaddedString(rowLong, 16, 16, EMPTY_BYTES);
   }
 
+  public static Text genMaxRow(Text splitEnd) {
+    String padded = splitEnd.toString() + "0000000000000000".substring(splitEnd.toString().length());
+    Text maxRow = new Text(genRow( Long.parseLong(padded.trim(), 16) - 1l));
+    return maxRow;
+  }
+
+  public static Text genMinRow(Text splitStart) {
+    String padded = splitStart.toString()
+        + "0000000000000000".substring(splitStart.toString().length());
+    Text minRow = new Text(genRow(Long.parseLong(padded.trim(), 16)));
+    return minRow;
+  }
+
+  public static Text genNextMinRow(Text splitStart) {
+    String padded = splitStart.toString()
+        + "0000000000000000".substring(splitStart.toString().length());
+    Text minRow = new Text(genRow(Long.parseLong(padded.trim(), 16) + 1l));
+    return minRow;
+  }
+
   public static Range pickRange(TableOperations tops, String table, Random r)
       throws TableNotFoundException, AccumuloSecurityException, AccumuloException {
 
@@ -133,14 +150,24 @@ public class Monitor {
     } else {
       int index = r.nextInt(splits.size());
       Text maxRow = splits.get(index);
+      maxRow = (maxRow.getLength() < 16) ? genMaxRow(maxRow) : maxRow;
       Text minRow = index == 0 ? new Text(genRow(0)) : splits.get(index - 1);
+      minRow = (minRow.getLength() < 16) ? genMinRow(minRow) : ((minRow.getLength() == 16) ? genNextMinRow(minRow) : minRow);
+      long maxRowlong = Long.parseLong(maxRow.toString().trim(), 16);
+      long minRowlong = Long.parseLong(minRow.toString().trim(), 16);
 
-      long startRow = genLong(Long.parseLong(minRow.toString().trim(), 16),
-          Long.parseLong(maxRow.toString().trim(), 16) - distance, r);
+      if((maxRowlong - minRowlong) <= distance)
+      {
+        byte[] scanStart = genRow(minRowlong);
+        byte[] scanStop = genRow(maxRowlong);
+        return new Range(new Text(scanStart), false, new Text(scanStop), true);
+      }
+
+      long startRow = genLong(minRowlong, maxRowlong - distance, r);
       byte[] scanStart = genRow(startRow);
       byte[] scanStop = genRow(startRow + distance);
 
-      return new Range(new Text(scanStart), new Text(scanStop));
+      return new Range(new Text(scanStart), false, new Text(scanStop), true);
     }
   }
 

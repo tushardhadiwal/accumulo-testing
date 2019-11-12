@@ -35,9 +35,6 @@ class MonitorOpts extends ClientOpts {
       description = "continuously scan the table. note that this overrides --num-iterations")
   boolean continuous = false;
 
-  @Parameter(names = "--scan-seed", description = "seed for randomly choosing tablets to scan")
-  int scan_seed = 1337;
-
   @Parameter(names = "--scan-batch-size", description = "scanner batch size")
   int batch_size = 5;
 
@@ -47,4 +44,7 @@ class MonitorOpts extends ClientOpts {
   @Parameter(names = "--num-of-rows-per-iteration",
       description = "Number of rows scanned together in one iteration of scanner consumption")
   long distance = 10l;
+
+  @Parameter(names = "--auth", description = "Provide a auth that can access all/most rows")
+  String auth = "SYS";
 }
